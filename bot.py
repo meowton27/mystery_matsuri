@@ -32,30 +32,50 @@ async def on_application_command_error(ctx, error):
 
 # ---------------------------------------------------------------- SLASH COMMANDS ----------------------------------------------------------------
 
-@bot.slash_command(name = "boo", description = "Making you scared I bet")
-@commands.cooldown(1, 5 * 60)
-async def say_boo(ctx):
-        await ctx.respond("Boo!")   
+# ---------------------------------------------------------------- CURRENCIES     ----------------------------------------------------------------
 
-@bot.slash_command(name = "dmme", description = "Giving ya a DM")
-@commands.cooldown(1, 5 * 60)
-async def dm_me(ctx: commands.Context):
-    emoji_custom_id = "<:KitsuneMasks02:1158093475322011680>"
-    emoji2 = "<a:kitsuneflower:1156299096559202384>" 
-    await ctx.respond(f"Don't wanna {emoji_custom_id}")
+try:
+    with open('./Python_lang/discord_bot/user_data.json', 'r') as f:
+        user_data = json.load(f)
+except FileNotFoundError:
+    print("File 'user_data.json' not found.")
+    user_data = {}  # Initialize with an empty dictionary
+except json.JSONDecodeError:
+    print("Invalid JSON data in 'user_data.json'.")
+    user_data = {}  # Initialize with an empty dictionary
 
-    user = ctx.author
+def save_user_data():
+    with open('./Python_lang/discord_bot/user_data.json', 'w') as f:
+        json.dump(user_data, f, indent=4)
 
-    # Create an embed for the DM
-    embed = discord.Embed(title=f"Hello there {emoji2}",description="let me know if this dm reach you", color=discord.Color.green())
-    image_url = 'https://cdn.discordapp.com/attachments/1154695654501785620/1154804232407482449/FINAL-mystery-matsuri-banner.jpg?ex=651b8d00&is=651a3b80&hm=29f9d96ee759c01cc979be80e5c435c8275d3d012b7b2bab6c4668601541661f&'
-    embed.set_image(url=image_url)
+@bot.slash_command(name="work", description="doing something")
+async def daily(ctx):
+    user_id = str(ctx.author.id)
 
-    try:
-        await user.send(embed=embed)
-        await ctx.respond(f"JK, I Sent you a DM with a custom hello message! {emoji2}", ephemeral=True)
-    except discord.Forbidden:
-        await ctx.respond(f"Too bad your dm is closed {emoji_custom_id}", ephemeral=True)
+    # Check if the user has a balance entry, create one if not
+    if user_id not in user_data:
+        user_data[user_id] = {'balance': 0}
+
+    # Check if the user can work (based on cooldown or other criteria)
+    earnings = random.randint(10, 50)
+    user_data[user_id]['balance'] += earnings
+    save_user_data()
+
+    await ctx.respond(f'You earned {earnings} coins! <:dancing:1158790727149568073>')
+
+@bot.slash_command(name="balance", description="your balance")
+async def balance(ctx) :
+    user_id = str(ctx.author.id)
+
+    # Check if the user has a balance entry, create one if not
+    if user_id not in user_data:
+        await ctx.respond(f'You have no balance entry')
+    else :
+        bal = user_data[user_id]['balance']
+        await ctx.respond(f'Your balance is {bal} coins')
+    
+
+# ---------------------------------------------------------------- FOOD DELIVERY AND ORDER -------------------------------------------------------
 
 @bot.slash_command(name="order", description="ordering food")
 async def order(ctx:commands.Context, 
@@ -93,6 +113,35 @@ async def deliver(ctx:commands.Context,
 
     # notifying the cook that the order is delivered
     await ctx.respond("order delivered")
+
+# ---------------------------------------------------------------- MISCELANNOUS ------------------------------------------------------------------
+
+@bot.slash_command(name = "boo", description = "Making you scared I bet")
+@commands.cooldown(1, 5 * 60)
+async def say_boo(ctx):
+        await ctx.respond("Boo!")   
+
+@bot.slash_command(name = "dmme", description = "Giving ya a DM")
+@commands.cooldown(1, 5 * 60)
+async def dm_me(ctx: commands.Context):
+    emoji_custom_id = "<:KitsuneMasks02:1158093475322011680>"
+    emoji2 = "<a:kitsuneflower:1156299096559202384>" 
+    await ctx.respond(f"Don't wanna {emoji_custom_id}")
+
+    user = ctx.author
+
+    # Create an embed for the DM
+    embed = discord.Embed(title=f"Hello there {emoji2}",description="let me know if this dm reach you", color=discord.Color.green())
+    image_url = 'https://cdn.discordapp.com/attachments/1154695654501785620/1154804232407482449/FINAL-mystery-matsuri-banner.jpg?ex=651b8d00&is=651a3b80&hm=29f9d96ee759c01cc979be80e5c435c8275d3d012b7b2bab6c4668601541661f&'
+    embed.set_image(url=image_url)
+
+    try:
+        await user.send(embed=embed)
+        await ctx.respond(f"JK, I Sent you a DM with a custom hello message! {emoji2}", ephemeral=True)
+    except discord.Forbidden:
+        await ctx.respond(f"Too bad your dm is closed {emoji_custom_id}", ephemeral=True)
+
+
 
 
 
