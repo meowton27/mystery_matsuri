@@ -110,9 +110,20 @@ async def on_ready():
 @bot.event
 async def on_application_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
-         await ctx.respond(f"The command is on cooldown, please try again in `{round(error.retry_after,2)}` seconds")
+        retry_after = error.retry_after
+        if retry_after >= 86400:  # More than a day
+            days = int(retry_after // 86400)
+            await ctx.respond(f"The command is on cooldown, please try again in {days} day{'s' if days > 1 else ''}.")
+        elif retry_after >= 3600:  # More than an hour
+            hours = int(retry_after // 3600)
+            await ctx.respond(f"The command is on cooldown, please try again in {hours} hour{'s' if hours > 1 else ''}.")
+        elif retry_after >= 60:  # More than a minute
+            minutes = int(retry_after // 60)
+            await ctx.respond(f"The command is on cooldown, please try again in {minutes} minute{'s' if minutes > 1 else ''}.")
+        else:
+            await ctx.respond(f"The command is on cooldown, please try again in {round(retry_after, 2)} seconds.")
     else:
-         raise error
+        raise error
 
 
 
@@ -341,11 +352,6 @@ async def scoop(ctx):
 @commands.cooldown(1, 5 * 60)
 async def say_boo(ctx):
     await ctx.respond("Boo!")   
-
-@bot.slash_command(name = "teehee", description = "Making you scared")
-@commands.cooldown(1, 5 * 60)
-async def say_boo(ctx):
-        await ctx.respond("the bot run twice lol")  
 
 @bot.slash_command(name = "dmme", description = "Giving ya a DM")
 @commands.cooldown(1, 5 * 60)
