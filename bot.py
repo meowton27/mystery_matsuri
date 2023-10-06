@@ -7,6 +7,7 @@ import random
 import json
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -239,12 +240,28 @@ async def fish_info(ctx: commands.Context):
     await ctx.respond(embed = embed)
 
 async def fish_help(ctx: commands.Context):
-    # Implement the logic for the 'help' option here
-    await ctx.respond("You chose 'help' option.")
+    embed = discord.Embed(title="Scoop n' Solve Fish Commands",
+                          description="`/fish info` : to view the gameplay and prizes\n"
+                                      "`/fish list` : to view the goldfish collection\n"
+                                      "`/scoop` : to play fish scooping and catch a goldfish!",
+                          color=discord.Color.gold()
+                          )
+
+    # Set the image URL
+    embed.set_image(url="https://i.pinimg.com/originals/60/1f/68/601f68d55572d5ea2e42b2e85bc8b333.gif")
+
+    # Set the footer
+    embed.set_footer(text="Mystery Matsuri | Scoop n' Solve")
+
+    # You can send this embed in a message like this
+    await ctx.respond(embed=embed)
 
 async def fish_list(ctx: commands.Context):
-    # Implement the logic for the 'list' option here
-    await ctx.respond("You chose 'list' option.")
+    embed = discord.Embed(color=discord.Color.orange())
+    embed.set_image(url="https://cdn.discordapp.com/attachments/1154695654501785620/1156912343138185226/Fish_List.png?ex=6516b214&is=65156094&hm=3291ea33884896639f7e753f2acbe10e8acd3d115d8cb4ff12614149e264d663&")
+
+    # You can send this embed in a message like this
+    await ctx.respond(embed=embed)
 
 async def fish_collection(ctx: commands.Context):
     # Implement the logic for the 'collection' option here
@@ -323,7 +340,12 @@ async def scoop(ctx):
 @bot.slash_command(name = "boo", description = "Making you scared I bet")
 @commands.cooldown(1, 5 * 60)
 async def say_boo(ctx):
-        await ctx.respond("Boo!")   
+    await ctx.respond("Boo!")   
+
+@bot.slash_command(name = "teehee", description = "Making you scared")
+@commands.cooldown(1, 5 * 60)
+async def say_boo(ctx):
+        await ctx.respond("the bot run twice lol")  
 
 @bot.slash_command(name = "dmme", description = "Giving ya a DM")
 @commands.cooldown(1, 5 * 60)
