@@ -1,13 +1,14 @@
 import discord
 from discord.ext import commands
 from discord.commands import Option
-from datetime import timedelta
+from discord.ui.button import Button
+from discord.ui import View
 from typing import List 
 import random
 import json
 import os
 from dotenv import load_dotenv
-from datetime import datetime
+
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -100,6 +101,15 @@ def save_user_data():
     with open('./user_data.json', 'w') as f:
         json.dump(user_data, f, indent=4)
 
+# checking if the user is registered in json or not
+def check_data(user_id) :
+    if user_id not in user_data:
+        user_data[user_id] = {}
+        user_data[user_id]['fish_catches'] = {}
+        for fish in fish_data:
+            user_data[user_id]['fish_catches'][fish['number']] = 0
+        user_data[user_id]['balance'] = 0
+
 # ---------------------------------------------------------------- EVENT COMMANDS ----------------------------------------------------------------
 
 @bot.event
@@ -113,18 +123,17 @@ async def on_application_command_error(ctx, error):
         retry_after = error.retry_after
         if retry_after >= 86400:  # More than a day
             days = int(retry_after // 86400)
-            await ctx.respond(f"The command is on cooldown, please try again in {days} day{'s' if days > 1 else ''}.")
+            await ctx.respond(f"The command is on cooldown, please try again in `{days} day{'s' if days > 1 else ''}.`")
         elif retry_after >= 3600:  # More than an hour
             hours = int(retry_after // 3600)
-            await ctx.respond(f"The command is on cooldown, please try again in {hours} hour{'s' if hours > 1 else ''}.")
+            await ctx.respond(f"The command is on cooldown, please try again in `{hours} hour{'s' if hours > 1 else ''}.`")
         elif retry_after >= 60:  # More than a minute
             minutes = int(retry_after // 60)
-            await ctx.respond(f"The command is on cooldown, please try again in {minutes} minute{'s' if minutes > 1 else ''}.")
+            await ctx.respond(f"The command is on cooldown, please try again in `{minutes} minute{'s' if minutes > 1 else ''}.`")
         else:
-            await ctx.respond(f"The command is on cooldown, please try again in {round(retry_after, 2)} seconds.")
+            await ctx.respond(f"The command is on cooldown, please try again in `{round(retry_after, 2)} seconds.`")
     else:
         raise error
-
 
 
 # ---------------------------------------------------------------- SLASH COMMANDS ----------------------------------------------------------------
@@ -137,31 +146,35 @@ async def daily(ctx):
     user_id = str(ctx.author.id)
 
     # Check if the user has a balance entry, create one if not
-    if user_id not in user_data:
-        user_data[user_id] = {'balance': 0}
-    elif 'balance' not in user_data[user_id]:
-        user_data[user_id] = {'balance': 0}
+    check_data(user_id)
 
     # Check if the user can work (based on cooldown or other criteria)
-    earnings = random.randint(10, 50)
+    earnings = random.randint(10, 30)
     user_data[user_id]['balance'] += earnings
     save_user_data()
 
-    await ctx.respond(f'You earned {earnings} coins! <:dancing:1158790727149568073>')
+    await ctx.respond(f'You earned `{earnings}` <:sakura:1159350038959505468>')
 
 @bot.slash_command(name="balance", description="your balance")
 async def balance(ctx) :
     user_id = str(ctx.author.id)
 
     # Check if the user has a balance entry, create one if not
-    if user_id not in user_data:
-        await ctx.respond(f'You have no balance entry')
-    else :
-        bal = user_data[user_id]['balance']
-        await ctx.respond(f'Your balance is {bal} coins')
+    check_data(user_id)
+
+    bal = user_data[user_id]['balance']
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Updating it to be embed
+    await ctx.respond(f'Your balance is `{bal}` <:sakura:1159350038959505468>')
     
 
 # ---------------------------------------------------------------- FOOD DELIVERY AND ORDER -------------------------------------------------------
+
+@bot.slash_command(name="menu", description="Our stall's menu")
+async def menu(ctx: commands.Context):
+    embed = discord.Embed(color=discord.Color.orange())
+    embed.set_image(url="https://cdn.discordapp.com/attachments/1154695654501785620/1159916352933482606/menu-01.png?ex=6532c348&is=65204e48&hm=6e62e4c3f65df22063f0d28825f0c7fb650c2d3d3fed29533b63656c2e6daa84&")
+
+    await ctx.respond(embed=embed)
 
 @bot.slash_command(name="order", description="ordering food")
 async def order(ctx:commands.Context, 
@@ -329,12 +342,7 @@ async def scoop(ctx):
 
         # Update user's data (you may need to adapt this to your user data structure)
         user_id = str(ctx.author.id)
-        if user_id not in user_data:
-            user_data[user_id] = {'fish_catches': {}}
-        if 'fish_catches' not in user_data[user_id]:
-            user_data[user_id] = {'fish_catches': {}}
-            for fish in fish_data:
-                user_data[user_id]['fish_catches'][fish['number']] = 0
+        check_data(user_id)
 
         user_data[user_id]['fish_catches'][fish_number] += 1
 
@@ -344,14 +352,100 @@ async def scoop(ctx):
 
         await ctx.respond(catchphrase)
 
+# ---------------------------------------------------------------- Darting Game ----------------------------------------------------------------
 
+class DartGameButton(Button["DartGame"]):
+    def __init__(self, number):
+        if number < 6 or (19 < number < 26) or ((number-1)%5 == 0 ) or (number%5 == 0 )  :
+            super().__init__(style=discord.ButtonStyle.primary, label="\u200b", row=int((number-1)/5))
+        elif number == 13 :
+            super().__init__(style=discord.ButtonStyle.gray, label="\u200b", row=int((number-1)/5))
+        else :
+            super().__init__(style=discord.ButtonStyle.danger, label="\u200b", row=int((number-1)/5))
+        self.number = number
+
+    async def callback(self, interaction: discord.Interaction):
+        assert self.view is not None
+        view: DartGame = self.view
+        if view.finished:
+            return
+
+        random_number = random.randint(1, 25)
+        if self.number == random_number:
+            self.style = discord.ButtonStyle.success
+            self.label = "🎯"
+            content = "You won bro"
+        else:
+            correct_button = view.children[random_number - 1]
+            correct_button.style = discord.ButtonStyle.success
+            correct_button.label = "😏"
+            self.label = "✖️"
+            content = f"You suck, the lucky number was {random_number}"
+
+        # Disable all buttons in the view
+        for button in view.children:
+            button.disabled = True
+
+        view.finished = True
+        # Edit the embed description to display the result
+        embed = interaction.message.embeds[0]
+        embed.description = content
+        await interaction.response.edit_message(embed=embed, view=view)
+
+class DartGame(View):
+    children: List[DartGameButton]
+
+    def __init__(self):
+        super().__init__()
+        self.finished = False
+
+        for number in range(1, 26):
+            self.add_item(DartGameButton(number))
+
+@bot.slash_command(name="shoot", description="Dart n' Decode")
+async def shoot(ctx: commands.Context):
+    """Play the Dart Game."""
+    embed = discord.Embed(title="Dart Game", description="Click a button to throw a dart.", color=discord.Color.blue())
+    await ctx.respond(embed=embed, view=DartGame())
 
 # ---------------------------------------------------------------- MISCELANNOUS ------------------------------------------------------------------
 
-@bot.slash_command(name = "boo", description = "Making you scared I bet")
+@bot.slash_command(name = "mystery", description = "Mystery Matsuri Commands")
 @commands.cooldown(1, 5 * 60)
 async def say_boo(ctx):
-    await ctx.respond("Boo!")   
+    embed = discord.Embed(title="Mystery Matsuri Commands", color=discord.Color.gold())
+
+    # Add commands for Scoop n' Solve
+    scoop_commands = [
+        "`/fish info` : to view gameplay and prizes",
+        "`/fish help` : to view all commands",
+        "`/fish list` : to view 28 types of goldfish",
+        "`/fish collection` : to view your goldfish collection",
+        "`/scoop` : to play fish scooping!"
+    ]
+    embed.add_field(name="Scoop n' Solve Commands", value='\n'.join(scoop_commands), inline=False)
+
+    # Add commands for Dart n' Dash
+    dart_commands = [
+        "`/dart info` : to view the gameplay and prizes",
+        "`/dart help` : to view all commands",
+        "`/shoot` : to play target shooting~"
+    ]
+    embed.add_field(name="Dart n' Dash Commands", value='\n'.join(dart_commands), inline=False)
+
+    # Add commands for Dine n' Decode
+    dine_commands = [
+        "`/dine info` : to view how to order and dine",
+        "`/dine menu` : to view the menu",
+        "`/order` : to place an order",
+        "`/deliver` : to fulfill an order (command for Class 1-D students only)"
+    ]
+    embed.add_field(name="Dine n' Decode Commands", value='\n'.join(dine_commands), inline=False)
+
+    # Add commands for Riddles
+    riddle_command = ["/ans : to send an answer to a riddle"]
+    embed.add_field(name="Riddles", value='\n'.join(riddle_command), inline=False)
+    await ctx.respond(embed= embed)   
 
 @bot.slash_command(name = "dmme", description = "Giving ya a DM")
 @commands.cooldown(1, 5 * 60)
