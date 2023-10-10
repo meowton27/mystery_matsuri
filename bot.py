@@ -8,6 +8,9 @@ import random
 import json
 import os
 from dotenv import load_dotenv
+import asyncio
+
+from data import fish_data, fish_catchphrases
 
 
 load_dotenv()
@@ -18,74 +21,6 @@ bot = discord.Bot(intents = intents)
 
 fish_cmds = ['info', 'help', 'list', 'collection']
 
-fish_data = [
-    {"number": "01", "emote_id": "<:1f:1156919377308954654>", "name": "common"},
-    {"number": "02", "emote_id": "<:2f:1156919381973028864>", "name": "comet"},
-    {"number": "03", "emote_id": "<:3f:1156919386385428500>", "name": "wakin"},
-    {"number": "04", "emote_id": "<:4f:1156919390692978698>", "name": "watonai"},
-    {"number": "05", "emote_id": "<:5f:1156919394337832961>", "name": "london shubunkin"},
-    {"number": "06", "emote_id": "<:6f:1156919396283977778>", "name": "american shubunkin"},
-    {"number": "07", "emote_id": "<:7f:1156919400432156694>", "name": "bristol shubunkin"},
-    {"number": "08", "emote_id": "<:8f:1156919403993112646>", "name": "jikin"},
-    {"number": "09", "emote_id": "<:9f:1156919407893819504>", "name": "fantail"},
-    {"number": "10", "emote_id": "<:10f:1156919412763410473>", "name": "sarasa"},
-    {"number": "11", "emote_id": "<:11f:1156919416425037834>", "name": "calico"},
-    {"number": "12", "emote_id": "<:12f:1156919418866114680>", "name": "veil tail"},
-    {"number": "13", "emote_id": "<:13f:1156919422146060319>", "name": "oranda"},
-    {"number": "14", "emote_id": "<:14f:1156919425849639003>", "name": "red cap oranda"},
-    {"number": "15", "emote_id": "<:15f:1156919427875479552>", "name": "lion head"},
-    {"number": "16", "emote_id": "<:16f:1156919431583248514>", "name": "ranchu"},
-    {"number": "17", "emote_id": "<:17f:1156919433709768724>", "name": "black moor"},
-    {"number": "18", "emote_id": "<:18f:1156919437388156999>", "name": "panda moor"},
-    {"number": "19", "emote_id": "<:19f:1156919441184014386>", "name": "pearlscale"},
-    {"number": "20", "emote_id": "<:20f:1156919444757545101>", "name": "crown pearlscale"},
-    {"number": "21", "emote_id": "<:21f:1156919447475462215>", "name": "butterfly telescope"},
-    {"number": "22", "emote_id": "<:22f:1156919451179036742>", "name": "egg"},
-    {"number": "23", "emote_id": "<:23f:1156919454731616257>", "name": "blue phoenix"},
-    {"number": "24", "emote_id": "<:24f:1156919456853934130>", "name": "tosakin"},
-    {"number": "25", "emote_id": "<:25f:1156919460582670347>", "name": "tamasaba"},
-    {"number": "26", "emote_id": "<:26f:1156919464093290516>", "name": "sukiyu"},
-    {"number": "27", "emote_id": "<:27f:1156919466496638996>", "name": "bubble eye"},
-    {"number": "28", "emote_id": "<:28f:1156919470024040518>", "name": "star gazer"}
-]
-
-fish_catchphrases = {
-    "1": "{user.mention} successfully captured a **{fish_number}** goldfish! {emote_id}",
-    "2": "Great job, {user.mention}! You reeled in a glimmering **{fish_number}** goldfish! {emote_id}",
-    "3": "Woah~ Nice catch, {user.mention}! A **{fish_number}** goldfish in the net! {emote_id}",
-    "4": "{user.mention}, you’ve got yourself a stunning **{fish_number}** goldfish! {emote_id}",
-    "5": "Well done, {user.mention}. You’ve scooped a **{fish_number}** goldfish! {emote_id}",
-    "6": "A shiny **{fish_number}** goldfish for {user.mention}! {emote_id}",
-    "7": "Nice scoop, {user.mention}! You captured a **{fish_number}** goldfish~ {emote_id}",
-    "8": "{user.mention} captured a **{fish_number}** goldfish! Keep scooping to complete your collection~ {emote_id}",
-    "9": "{user.mention} is on fire! A dazzling **{fish_number}** goldfish in your scoop! {emote_id}",
-    "10": "{user.mention} captured a **{fish_number}** goldfish. Keep scooping, you’re doing great! {emote_id}",
-    "11": "Hey! {user.mention} snagged a beautiful **{fish_number}** goldfish~ {emote_id}",
-    "12": "Lucky, {user.mention}! You’ve scooped a **{fish_number}** goldfish~ {emote_id}",
-    "13": "Your skills are unmatched, {user.mention}! You successfully grabbed an **{fish_number}** goldfish. {emote_id}",
-    "14": "You're making quite a splash, {user.mention}! You’ve scooped a **{fish_number}** goldfish. {emote_id}",
-    "15": "Extraordinary {user.mention}! You've added a **{fish_number}** to your collection. {emote_id}",
-    "16": "{user.mention} reeled in a sparkling **{fish_number}** goldfish! {emote_id}",
-    "17": "{user.mention} mastered the art of the scoop and caught a **{fish_number}** goldfish! {emote_id}",
-    "18": "You’re a pro at this, {user.mention}! You captured a **{fish_number}** goldfish. {emote_id}",
-    "19": "Scoop-tastic! {user.mention} captured a gleaming **{fish_number}** goldfish! {emote_id}",
-    "20": "Great job, {user.mention}! A **{fish_number}** goldfish joins your collection. {emote_id}",
-    "21": "Fishy fortune favors you, {user.mention}! You captured a **{fish_number}** goldfish~ {emote_id}",
-    "22": "What is it, {user.mention}? *gasp* It’s a **{fish_number}** goldfish! {emote_id}",
-    "23": "Phew! That was a tough fight, {user.mention}. You captured a pretty **{fish_number}** goldfish! {emote_id}",
-    "24": "Oh, look at that {user.mention}! You scooped a **{fish_number}** goldfish~ {emote_id}",
-    "25": "You made it look easy, {user.mention}! You caught a **{fish_number}** goldfish! {emote_id}",
-    "26": "Yay! {user.mention} successfully scooped a **{fish_number}** goldfish! {emote_id}",
-    "27": "Nice catch, {user.mention}! You got a **{fish_number}** goldfish! {emote_id}",
-    "28": "Fish-scooping master {user.mention}! You successfully scooped up a shiny **{fish_number}** goldfish! {emote_id}",
-    "29": random.choice([
-        "Oh no! Your scooper came up empty. Try again!",
-        "Oops! You failed to catch one. :(",
-        "Your scooping skills need refinement. You couldn’t even catch a common goldfish. :(",
-        "\*Your scooper broke.\* Don’t give up! You’ll get the hang of it~",
-        "Aw, so close! You nearly got it…"
-    ])
-}
 
 try:
     with open('./user_data.json', 'r') as f:
@@ -140,9 +75,15 @@ async def on_application_command_error(ctx, error):
 
 # ---------------------------------------------------------------- CURRENCIES     ----------------------------------------------------------------
 
-@bot.slash_command(name="daily", description="doing something")
-@commands.cooldown(1, 24 * 60 * 60)
-async def daily(ctx):
+@bot.slash_command(name="fortune", description="doing something")
+@commands.cooldown(1, 24 * 60 * 60, commands.BucketType.user)
+async def fortune(ctx):
+    await ctx.respond("Opening the fortune slip...")
+
+    await asyncio.sleep(1)  # Add a bit more delay before showing the result
+
+    fortune_result = random.choice(["Great Fortune", "Good Fortune", "Modest Fortune", "Rising Fortune","Misfortune","Great Misfortune"])
+
     user_id = str(ctx.author.id)
 
     # Check if the user has a balance entry, create one if not
@@ -152,8 +93,17 @@ async def daily(ctx):
     earnings = random.randint(10, 30)
     user_data[user_id]['balance'] += earnings
     save_user_data()
+    
+    embed = discord.Embed(
+        title="Fortune Slip Result",
+        description=f"You got: **{fortune_result}**, and You earned `{earnings}` <:sakura:1159350038959505468>",
+        color=discord.Color.gold()
+    )
+    embed.set_image(url='https://cdn.discordapp.com/attachments/1161323437717995530/1161324191291809832/ai_lucky.jpeg?ex=6537e26f&is=65256d6f&hm=26d6b5686672dcd5de8901a93dd9b5b440a8fe65a41bbc3e9ecc659ea7eb9cc7&')
 
-    await ctx.respond(f'You earned `{earnings}` <:sakura:1159350038959505468>')
+    # Send a new interaction response with the embed
+    await ctx.send(embed=embed)
+
 
 @bot.slash_command(name="balance", description="your balance")
 async def balance(ctx) :
@@ -323,7 +273,7 @@ async def fish_collection(ctx: commands.Context):
     await ctx.respond(embed = embed)
 
 @bot.slash_command(name = "scoop", description = "Scooping a fish")
-# @commands.cooldown(1, 5 * 60)
+# @commands.cooldown(1, 5 * 60, commands.BucketType.user)
 async def scoop(ctx):
     rng = random.randint(0, len(fish_data) - 1)  # Pick a random fish index
     fish = fish_data[rng]
@@ -349,7 +299,7 @@ async def scoop(ctx):
 
         save_user_data()
 
-
+        await gacha_riddle(ctx.author)
         await ctx.respond(catchphrase)
 
 # ---------------------------------------------------------------- Darting Game ----------------------------------------------------------------
@@ -375,6 +325,7 @@ class DartGameButton(Button["DartGame"]):
             self.style = discord.ButtonStyle.success
             self.label = "🎯"
             content = "You won bro"
+            await gacha_riddle(interaction.user)
         else:
             correct_button = view.children[random_number - 1]
             correct_button.style = discord.ButtonStyle.success
@@ -411,8 +362,7 @@ async def shoot(ctx: commands.Context):
 # ---------------------------------------------------------------- MISCELANNOUS ------------------------------------------------------------------
 
 @bot.slash_command(name = "mystery", description = "Mystery Matsuri Commands")
-@commands.cooldown(1, 5 * 60)
-async def say_boo(ctx):
+async def mystery(ctx):
     embed = discord.Embed(title="Mystery Matsuri Commands", color=discord.Color.gold())
 
     # Add commands for Scoop n' Solve
@@ -448,7 +398,7 @@ async def say_boo(ctx):
     await ctx.respond(embed= embed)   
 
 @bot.slash_command(name = "dmme", description = "Giving ya a DM")
-@commands.cooldown(1, 5 * 60)
+@commands.cooldown(1, 5 * 60, commands.BucketType.user)
 async def dm_me(ctx: commands.Context):
     emoji_custom_id = "<:KitsuneMasks02:1158093475322011680>"
     emoji2 = "<a:kitsuneflower:1156299096559202384>" 
@@ -467,6 +417,22 @@ async def dm_me(ctx: commands.Context):
     except discord.Forbidden:
         await ctx.respond(f"Too bad your dm is closed {emoji_custom_id}", ephemeral=True)
 
+@bot.slash_command(name="boo")
+async def boo(ctx) :
+    await ctx.respond("boo hoo hoo hoo")
+    await gacha_riddle(ctx.author)
+
+# randomizer (for riddle)
+async def gacha_riddle(user) :
+    rng = 1
+    if rng == 1 :
+        embed = discord.Embed(title="Pss, You got a secret message",
+                              description = "please use `/solve` to solve the riddle",
+                              color=discord.Color.orange())
+        embed.set_image(url="https://cdn.discordapp.com/attachments/1160145573039583232/1160146204194263111/RIDDLE_1.png?ex=65339959&is=65212459&hm=e6a1df44b9590b142f24d2be8f471afc2cfa10a54a486b0af629b28c2c7d9b5d&")
+        await user.send(embed=embed)
+
+    
 
 
 
