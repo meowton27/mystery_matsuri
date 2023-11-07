@@ -21,6 +21,7 @@ bot = discord.Bot(intents=intents)
 fish_cmds = ['info', 'list', 'collection']
 dart_cmds = ['info']
 dine_cmds = ['info', 'menu']
+view_cmds = ['Calendars', 'Note #1', 'Note #2', 'Photo #1', 'Photos #2 & #3', 'Photo #4']
 
 try:
   with open('./user_data.json', 'r') as f:
@@ -149,6 +150,95 @@ async def balance(ctx):
   # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Updating it to be embed
   await ctx.respond(f'Your balance is `{bal}` <:sakura:1159350038959505468>')
 
+# -------------------------------------------------------------------------------- VIEW  --------------------------------------------------------------------------------
+
+@bot.slash_command(name="view", description="to view evidences of case file no 0006")
+async def view(ctx: commands.Context,
+              option: discord.Option(str, choices=view_cmds)):
+  if option == 'Calendars':
+    await evidence_1(ctx)
+  if option == 'Note #1':
+    await evidence_2(ctx)
+  if option == 'Note #2':
+    await evidence_3(ctx)
+  if option == 'Photo #1':
+    await evidence_4(ctx)
+  if option == 'Photos #2 & #3':
+    await evidence_5(ctx)
+  if option == 'Photo #4':
+    await evidence_6(ctx)
+
+
+# EVIDENCE NO. 1 CALENDARS
+async def evidence_1(ctx: commands.Context):
+  embed = discord.Embed(
+      title="EVIDENCE NO. 1 - CALENDARS",
+      description="**CLUES #1, #9, & #13.** Months of August, September, and October shows the sequence of events happened before the festival and the date of murder.",
+      color=discord.Color.purple())
+  embed.set_image(
+      url="https://cdn.discordapp.com/attachments/1154695654501785620/1167910045737046237/CALENDARS.gif?ex=654fd7fd&is=653d62fd&hm=b97cc96cbb69083d84662fc5&")
+  embed.set_footer(text="Mystery Matsuri | Case File No. 0006 Evidences")
+  await ctx.respond(embed=embed)
+
+
+# EVIDENCE NO. 2 NOTE 1
+async def evidence_2(ctx: commands.Context):
+  embed = discord.Embed(
+      title="EVIDENCE NO. 2 - NOTE #1",
+      description="**CLUES #5, #6, & #12.** The series of numbers and \*the murderer is wearing a white mask\*. A clue that helps to confirm the dates from the calendars and foretells that the masks holds important clue on the case. These leads to the past conversations that can be found around the server, specifically in <#746983735953457194> and <#781491738367885392> channels. The series of numbers leads to https://discord.com/channels/717030509405929503/722502125590020117/1158005580649214023, a proof of <@654832174566080522> and <@1116792008024014884>'s cheating, and <@1090518245347430401>'s jealousy —__the backstory__.\n\n Message Link: `https://discord.com/channels/717030509405929503/722502125590020117/1158005580649214023`",
+      color=discord.Color.purple())
+  embed.set_image(
+      url="https://cdn.discordapp.com/attachments/1154695654501785620/1167910127714701402/NOTE_1_clue_notes.png?ex=654fd811&is=653d6311&hm=f9871a8ba91a35c8872c70d0cad2e3fc3cfbd5222706fddc1bce97462f586f13&")
+  embed.set_footer(text="Mystery Matsuri | Case File No. 0006 Evidences")
+  await ctx.respond(embed=embed)
+
+
+# EVIDENCE NO. 3 NOTE 2
+async def evidence_3(ctx: commands.Context):
+  embed = discord.Embed(
+      title="EVIDENCE NO. 3 - NOTE #2",
+      description="**CLUES #3, #8, & #11.** \*The murderer joined the server on the same date of their Discord account creation\*. This suggests that two members, <@1116792008024014884> and <@1090518245347430401>, are __the main suspects__.",
+      color=discord.Color.purple())
+  embed.set_image(
+      url="https://cdn.discordapp.com/attachments/1154695654501785620/1167910170370785320/NOTE_2_clue_same_dates.png?ex=654fd81b&is=653d631b&hm=53ff019776266195c7d5819c1af74018f789e8e5c19780e6f34a34d338b08df0&")
+  embed.set_footer(text="Mystery Matsuri | Case File No. 0006 Evidences")
+  await ctx.respond(embed=embed)
+
+
+# EVIDENCE NO. 4 PHOTO 1
+async def evidence_4(ctx: commands.Context):
+  embed = discord.Embed(
+      title="EVIDENCE NO. 4 - PHOTO #1",
+      description="**CLUES #2, #7, & #14.** The girl in the \*apple of my eye\* photo is  <@1116792008024014884>, as the wearer of *Kitsune* mask and was often seen ordering her favorite snack, Ringo ame in Dine n' Decode. The *apple of my eye* also means that <@654832174566080522> cherishes <@1116792008024014884> being her *secret lover*. Ringo ame is also called *pomme d’amour* in french which means *apples of love*. This be the reason of <@1090518245347430401>'s jealousy —__the culprit's motive__.",
+      color=discord.Color.purple())
+  embed.set_image(
+      url="https://cdn.discordapp.com/attachments/1154695654501785620/1167910245159416058/PHOTO_1clue_photo.png?ex=654fd82d&is=653d632d&hm=b083ceaa376a28c632ad3e01db2ebdb279bd194ee1d1d9d6b451c6730d918ae2&")
+  embed.set_footer(text="Mystery Matsuri | Case File No. 0006 Evidences")
+  await ctx.respond(embed=embed)
+
+
+# EVIDENCE NO. 5 PHOTOS 2 & 3
+async def evidence_5(ctx: commands.Context):
+  embed = discord.Embed(
+      title="EVIDENCE NO. 5 - PHOTOS #2 & #3",
+      description="**CLUES #4 & #10.** The before and after photos of two girls with birch tree at the back. One photo is missing mushrooms, signifies that the culprit, <@1090518245347430401> used a poisonous mushroom specifically death cap mushroom or *amanita phalloides* to kill <@654832174566080522> —__the culprit's means to carry out the murder__.",
+      color=discord.Color.purple())
+  embed.set_image(
+      url="https://cdn.discordapp.com/attachments/1154695654501785620/1167910310011740220/PHOTO_2_3_clue_mushroom.png?ex=654fd83c&is=653d633c&hm=d74dda1f1626ecdc5ea0e40add416978bd21527300a7eef85826e715e679c66c&")
+  embed.set_footer(text="Mystery Matsuri | Case File No. 0006 Evidences")
+  await ctx.respond(embed=embed)
+
+
+# EVIDENCE NO. 6 PHOTO 4
+async def evidence_6(ctx: commands.Context):
+  embed = discord.Embed(
+      title="EVIDENCE NO. 6 - PHOTO #4",
+      description="**CLUE #15.** The ripped photograph of a girl holding a plate of takoyaki. It serves as evidence that the victim's final meal was poisoned takoyaki, and the culprit is in possession of the missing half —__the last crucial piece of evidence__.",
+      color=discord.Color.purple())
+  embed.set_image(
+      url="https://cdn.discordapp.com/attachments/1154695654501785620/1167910377653289010/PHOTO_3_clue_takoyaki.png?ex=654fd84c&is=653d634c&hm=d2640a212f7adf41a281ce35bd98d34f3d16c9348a834ddedfa96aa38676f4df&")
+  embed.set_footer(text="Mystery Matsuri | Case File No. 0006 Evidences")
+  await ctx.respond(embed=embed)
 
 # ---------------------------------------------------------------- DINE N' DECODE -----------------------------------------------------------------
 
