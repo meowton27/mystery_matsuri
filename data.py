@@ -460,6 +460,8 @@ food_gifs = {
         "https://i.gifer.com/3Obxz.gif", "https://i.gifer.com/3Oby0.gif",
         "https://i.gifer.com/3Oby1.gif", "https://i.gifer.com/3Oby2.gif"
     ],
+    "Watame" : 
+    ["https://i.gifer.com/3Obxs.gif", "https://i.gifer.com/3Obxt.gif"],
     "Water bottle":
     ["https://i.gifer.com/3Oby6.gif", "https://i.gifer.com/3ObyB.gif"],
     "Soda": [

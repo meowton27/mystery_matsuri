@@ -13,7 +13,7 @@ from discord.ui.button import Button
 # importing data from data.py
 from data import fish_catchphrases, fish_data, riddle, prize, food_menu, food_gifs, broke_message, shoot_message, shoot_success, scoop_fail, food_prepare
 
-TOKEN = 'MTE1ODQwMTU3ODIzMTkzMDk1NA.G23a-m.ft60RZenPUbf2jmm3HiKPZkf4rJLPR2yt2SBhY'
+TOKEN = ''
 
 intents = discord.Intents.all()
 bot = discord.Bot(intents=intents)
@@ -922,7 +922,7 @@ async def solve(ctx: commands.Context,
                 conclusion: discord.Option(
                     discord.SlashCommandOptionType.string, required=True)):
   thread_id = ctx.guild.get_channel_or_thread(
-      1148136805116411975)  # TBC to the kitchen channel
+      1158413930696298516)  # TBC to the kitchen channel
   embed = discord.Embed(
       title="Someone is trying to solve the mystery",
       description=f"{ctx.author.mention} is trying to solve the mystery\n\n"
